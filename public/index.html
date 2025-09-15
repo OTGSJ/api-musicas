@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste API de Músicas</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; }
+        #playlist { list-style-type: none; padding: 0; }
+        li { border: 1px solid #ccc; margin-bottom: 10px; padding: 10px; border-radius: 5px; }
+        form { display: flex; flex-direction: column; gap: 10px; }
+        input { padding: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Minha Playlist</h1>
+    <ul id="playlist"></ul>
+
+    <hr>
+    <h2>Adicionar Nova Música</h2>
+    <form id="form-add-musica">
+        <input type="text" id="titulo" placeholder="Título da música" required>
+        <input type="text" id="artista" placeholder="Artista" required>
+        <input type="text" id="album" placeholder="Álbum">
+        <input type="number" id="ano" placeholder="Ano de lançamento">
+        <input type="text" id="genero" placeholder="Gênero">
+        <button type="submit">Adicionar Música</button>
+    </form>
+
+
+    <script>
+        const playlist = document.getElementById('playlist');
+        const form = document.getElementById('form-add-musica');
+
+        // Função para mostrar as músicas (Feature 1)
+        async function fetchMusicas() {
+            try {
+                const response = await fetch('/api/musicas');
+                const result = await response.json();
+                playlist.innerHTML = '';
+                result.data.forEach(musica => {
+                    const item = document.createElement('li');
+                    item.innerHTML = `<strong>${musica.titulo}</strong> - ${musica.artista} <br>
+                                      <small>Álbum: ${musica.album || 'N/A'} | Ano: ${musica.ano_lancamento || 'N/A'}</small>`;
+                    playlist.appendChild(item);
+                });
+            } catch (error) {
+                console.error('Erro ao buscar músicas:', error);
+            }
+        }
+        
+        // Função para adicionar uma nova música (para a Feature 2)
+        async function addMusica(event) {
+            event.preventDefault();
+            const novaMusica = {
+                titulo: document.getElementById('titulo').value,
+                artista: document.getElementById('artista').value,
+                album: document.getElementById('album').value,
+                ano_lancamento: parseInt(document.getElementById('ano').value),
+                genero: document.getElementById('genero').value,
+            };
+
+            try {
+                const response = await fetch('/api/musicas', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(novaMusica),
+                });
+
+                if (response.ok) {
+                    form.reset();
+                    fetchMusicas(); // Atualiza a lista
+                } else {
+                   console.error('Falha ao adicionar música');
+                }
+            } catch (error) {
+                console.error('Erro ao adicionar música:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchMusicas);
+        form.addEventListener('submit', addMusica);
+
+    </script>
+</body>
+</html>
