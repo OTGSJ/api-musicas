@@ -5,7 +5,7 @@ const musicaRoutes = require('./routes/musicas');
 
 app.use(express.json());
 
-// Middleware para arquivos estáticos (para frontend o teste)
+// Middleware para arquivos estáticos (para frontend de teste)
 app.use(express.static('public'));
 
 // Rota base para as musicas
