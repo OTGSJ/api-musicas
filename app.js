@@ -1,6 +1,5 @@
 const express = require('express');
 const app = express();
-const port = 8080;
 const musicaRoutes = require('./routes/musicas');
 
 app.use(express.json());
@@ -11,6 +10,5 @@ app.use(express.static('public'));
 // Rota base para as musicas
 app.use('/api/musicas', musicaRoutes);
 
-app.listen(port, () => {
-  console.log(`API rodando em http://localhost:${port}`);
-});
+// Exporta o app para ser usado nos testes
+module.exports = app;

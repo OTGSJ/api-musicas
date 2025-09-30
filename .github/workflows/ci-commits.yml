@@ -1,0 +1,34 @@
+name: CI para Commits
+
+# Este workflow é acionado em qualquer push para qualquer branch
+on:
+  push:
+    branches:
+      - "*" # Executa para todas as branches
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest # O tipo de máquina para executar o job
+
+    steps:
+      # 1. Clona o repositório para a máquina do workflow
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      # 2. Instala a versão especificada do Node.js
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      # 3. Instala as dependências do projeto
+      - name: Instalar dependências
+        run: npm install
+
+      # 4. Inicializa o banco de dados
+      - name: Inicializar banco de dados
+        run: node database/init-db.js
+
+      # 5. Executa os testes
+      - name: Rodar testes
+        run: npm test
