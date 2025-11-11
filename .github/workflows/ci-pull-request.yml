@@ -7,23 +7,44 @@ on:
       - "main"
 
 jobs:
-  build-and-test:
+  # Job 1: Verificação de Estilo de Codificação (Linting)
+  lint:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
-
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "18"
-
       - name: Instalar dependências
         run: npm install
+      # Passo correto para Rodar o Linting
+      - name: Rodar Linting e Corrigir Erros de Estilo
+        run: npm run lint -- --fix
 
+  # Job 2: Testes e Cobertura de Testes
+  coverage:
+    runs-on: ubuntu-latest
+    needs: lint # Depende do sucesso do Linting
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+      - name: Instalar dependências
+        run: npm install
       - name: Inicializar banco de dados
         run: node database/init-db.js
 
-      - name: Rodar testes
-        run: npm test
+      # Roda os testes com cobertura (usando c8)
+      - name: Rodar Testes e Cobertura (c8)
+        run: npm run coverage
+
+      - name: Verificar Cobertura de Código (Mínimo 90%)
+        run: |
+          echo "Verificação de Cobertura: Garantir que a cobertura esteja acima de 90%"
+          # Adicione exclusões explícitas
+          npx c8 check-coverage --lines 90 --functions 90 --branches 90 --exclude "server.js" --exclude "public/*" --exclude "database/*"
