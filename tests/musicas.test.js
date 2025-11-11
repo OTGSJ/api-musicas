@@ -26,6 +26,21 @@ describe("Testes da API de Músicas", () => {
       expect(Array.isArray(response.body.data)).toBe(true);
       expect(response.body.data.length).toBeGreaterThan(0);
     });
+
+    it("deve retornar status 500 em caso de erro no banco de dados", async () => {
+      const originalDbAll = db.all;
+
+      db.all = (sql, params, callback) => {
+        callback(new Error("Simulated DB Error"), null);
+      };
+
+      const response = await request(app).get("/api/musicas");
+
+      expect(response.status).toBe(500);
+      expect(response.body.error).toBe("Simulated DB Error");
+
+      db.all = originalDbAll;
+    });
   });
 
   // Teste para a rota POST /api/musicas
