@@ -3,17 +3,22 @@ const router = express.Router();
 const db = require("../database/init-db");
 
 // Feature 1: GET /api/musicas - Obter todas as músicas
-router.get("/", (req, res) => {
-  const sql = "SELECT * FROM musicas";
-  db.all(sql, [], (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json({
-      message: "Músicas obtidas com sucesso",
-      data: rows,
-    });
+describe("GET /api/musicas", () => {
+
+  it("deve retornar status 500 em caso de erro no banco de dados", async () => {
+    const db = require("../database/init-db");
+    const originalDbAll = db.all;
+
+    db.all = (sql, params, callback) => {
+      callback(new Error("Simulated DB Error"), null);
+    };
+
+    const response = await request(app).get("/api/musicas");
+
+    expect(response.status).toBe(500);
+    expect(response.body.error).toBe("Simulated DB Error");
+
+    db.all = originalDbAll;
   });
 });
 
@@ -72,6 +77,25 @@ router.post("/", (req, res) => {
           res.status(404).json({ error: "Música não encontrada." });
         }
       });
+    });
+
+    it("deve retornar status 500 se ocorrer um erro ao buscar no banco de dados", async () => {
+      const db = require("../database/init-db");
+      const originalDbGet = db.get;
+
+      // Mock para falhar a busca (db.get)
+      db.get = (sql, params, callback) => {
+        callback(new Error("Simulated GET Error"), null);
+      };
+
+      const response = await request(app).delete(
+        `/api/musicas/1` // ID fixo, pois a busca irá falhar antes
+      );
+
+      expect(response.status).toBe(500);
+      expect(response.body.error).toBe("Simulated GET Error");
+
+      db.get = originalDbGet; // Restaura a função
     });
   });
 });
