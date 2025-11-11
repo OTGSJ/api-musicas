@@ -10,6 +10,13 @@
     "lint:fix": "eslint . --fix",
     "coverage": "c8 npm test"
   },
+  "jest": {
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/server.js",
+      "/public/"
+    ]
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

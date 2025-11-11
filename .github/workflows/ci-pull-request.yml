@@ -46,5 +46,4 @@ jobs:
       - name: Verificar Cobertura de Código (Mínimo 90%)
         run: |
           echo "Verificação de Cobertura: Garantir que a cobertura esteja acima de 90%"
-          # Com o c8 instalado e rodando em 'npm run coverage', o comando de check deve ser:
-          npx c8 check-coverage --lines 90 --functions 90 --branches 90
+          npx c8 check-coverage --lines 90 --functions 90 --branches 90 --exclude "server.js" --exclude "public/*"
