@@ -3,13 +3,16 @@ const app = require("../app");
 const db = require("../database/init-db");
 
 describe("Testes da API de Músicas", () => {
-  afterAll((done) => {
-    db.close((err) => {
-      if (err) {
-        return console.error(err.message);
-      }
-      console.log("Conexão com o banco de dados de teste fechada.");
-      done();
+  afterAll(() => {
+    return new Promise((resolve, reject) => {
+      db.close((err) => {
+        if (err) {
+          console.error(err.message);
+          return reject(err);
+        }
+        console.log("Conexão com o banco de dados de teste fechada.");
+        resolve();
+      });
     });
   });
 
@@ -32,7 +35,7 @@ describe("Testes da API de Músicas", () => {
         titulo: "Tempo Perdido",
         artista: "Legião Urbana",
         album: "Dois",
-        ano_lancamento: 1986,
+        anoLancamento: 1986,
         genero: "Rock",
       };
 
@@ -68,7 +71,7 @@ describe("Testes da API de Músicas", () => {
         titulo: "Musica Teste Delete",
         artista: "Artista Teste",
         album: "Album Teste",
-        ano_lancamento: 2023,
+        anoLancamento: 2023,
         genero: "Teste",
       };
 

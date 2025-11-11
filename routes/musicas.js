@@ -19,7 +19,7 @@ router.get("/", (req, res) => {
 
 // Feature 2: POST /api/musicas - Adicionar uma nova música
 router.post("/", (req, res) => {
-  const { titulo, artista, album, ano_lancamento, genero } = req.body;
+  const { titulo, artista, album, anoLancamento, genero } = req.body;
 
   if (!titulo || !artista) {
     return res
@@ -28,7 +28,7 @@ router.post("/", (req, res) => {
   }
 
   const sql = `INSERT INTO musicas (titulo, artista, album, ano_lancamento, genero) VALUES (?, ?, ?, ?, ?)`;
-  const params = [titulo, artista, album, ano_lancamento, genero];
+  const params = [titulo, artista, album, anoLancamento, genero];
 
   db.run(sql, params, function (err) {
     if (err) {
