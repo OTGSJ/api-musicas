@@ -39,6 +39,41 @@ router.post("/", (req, res) => {
       data: { id: this.lastID, ...req.body },
     });
   });
+
+  // Feature 3: DELETE /api/musicas/:id - Remover uma música
+  router.delete("/:id", (req, res) => {
+    const id = req.params.id;
+
+    // 1. Verificar se a música existe
+    const checkSql = "SELECT id FROM musicas WHERE id = ?";
+    db.get(checkSql, [id], (err, row) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      // Caso o filme/música não exista, a API deverá retornar 404
+      if (!row) {
+        return res.status(404).json({ error: "Música não encontrada." });
+      }
+
+      // 2. Se existir, remover
+      const deleteSql = "DELETE FROM musicas WHERE id = ?";
+      db.run(deleteSql, [id], function (err) {
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
+
+        // Se o filme/música existir, remover e retornar 204 (No Content)
+        // O `this.changes` indica o número de linhas modificadas
+        if (this.changes > 0) {
+          res.status(204).send(); // Status 204 No Content para DELETE bem-sucedido
+        } else {
+          // Redundância: Em teoria, a verificação `if (!row)` já pegaria isso.
+          res.status(404).json({ error: "Música não encontrada." });
+        }
+      });
+    });
+  });
 });
 
 module.exports = router;
