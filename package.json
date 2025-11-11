@@ -5,7 +5,10 @@
   "main": "app.js",
   "scripts": {
     "start": "node database/init-db.js && node server.js",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "coverage": "c8 npm test"
   },
   "keywords": [],
   "author": "",

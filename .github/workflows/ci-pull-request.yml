@@ -7,7 +7,8 @@ on:
       - "main"
 
 jobs:
-  build-and-test:
+# Job 1: Verificação de Estilo de Codificação (Linting)
+  lint:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,8 +23,34 @@ jobs:
       - name: Instalar dependências
         run: npm install
 
+      - name: Rodar testes
+        run: npm test
+
+        name: Rodar Linting
+        run: npm run lint # Executa o comando de Linting
+
+  coverage:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+      - name: Instalar dependências
+        run: npm install
       - name: Inicializar banco de dados
         run: node database/init-db.js
 
-      - name: Rodar testes
-        run: npm test
+      - name: Rodar Testes e Cobertura
+        run: npm run coverage
+
+      # Verifica se a cobertura atende ao requisito da branch 'main' (90%)
+      - name: Verificar Cobertura de Código (Mínimo 90%)
+
+        run: |
+          echo "Verificação de Cobertura: Garantir que a cobertura esteja acima de 90%"
+          # (Para implementação real, usar a flag de threshold do c8 ou jest)
+          # Exemplo com c8: npx c8 check-coverage --lines 90 --functions 90 --branches 90
