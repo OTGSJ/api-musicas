@@ -20,8 +20,8 @@ jobs:
       - name: Instalar dependências
         run: npm install
       # Passo correto para Rodar o Linting
-      - name: Rodar Linting (ESLint)
-        run: npm run lint
+      - name: Rodar Linting e Corrigir Erros de Estilo
+        run: npm run lint -- --fix
 
   # Job 2: Testes e Cobertura de Testes
   coverage:
