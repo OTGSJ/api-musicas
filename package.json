@@ -14,7 +14,8 @@
     "coveragePathIgnorePatterns": [
       "/node_modules/",
       "/server.js",
-      "/public/"
+      "/public/",
+      "/database/"
     ]
   },
   "keywords": [],
