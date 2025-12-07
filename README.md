@@ -63,3 +63,10 @@ A API possui as seguintes rotas disponíveis:
 ### Workflow Escolhido: GitHub Flow
 
 Para esta API foi utilizado o **GitHub Flow**. Eu escolhi este workflow por sua simplicidade, pois este é um simples gerenciador de playlist de musica, não exigindo tanta complexidade como em outros workflows.
+
+# API de Músicas
+
+[![Docker Pulls](https://badgen.net/docker/pulls/SEU_USUARIO/api-musicas?icon=docker&label=pulls)](https://hub.docker.com/r/SEU_USUARIO/api-musicas)
+
+Uma API REST simples para gerenciar uma playlist...
+(resto do arquivo...)
