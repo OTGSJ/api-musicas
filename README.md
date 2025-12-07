@@ -66,7 +66,7 @@ Para esta API foi utilizado o **GitHub Flow**. Eu escolhi este workflow por sua 
 
 # API de Músicas
 
-[![Docker Pulls](https://badgen.net/docker/pulls/SEU_USUARIO/api-musicas?icon=docker&label=pulls)](https://hub.docker.com/r/SEU_USUARIO/api-musicas)
+[![Docker Pulls](https://badgen.net/docker/pulls/otgj/api-musicas?icon=docker&label=pulls)](https://hub.docker.com/r/otgj/api-musicas)
 
 Uma API REST simples para gerenciar uma playlist...
 (resto do arquivo...)
