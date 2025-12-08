@@ -3,22 +3,16 @@ const router = express.Router();
 const db = require("../database/init-db");
 
 // Feature 1: GET /api/musicas - Obter todas as músicas
-describe("GET /api/musicas", () => {
-
-  it("deve retornar status 500 em caso de erro no banco de dados", async () => {
-    const db = require("../database/init-db");
-    const originalDbAll = db.all;
-
-    db.all = (sql, params, callback) => {
-      callback(new Error("Simulated DB Error"), null);
-    };
-
-    const response = await request(app).get("/api/musicas");
-
-    expect(response.status).toBe(500);
-    expect(response.body.error).toBe("Simulated DB Error");
-
-    db.all = originalDbAll;
+router.get("/", (req, res) => {
+  const sql = "SELECT * FROM musicas";
+  db.all(sql, [], (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json({
+      message: "Sucesso",
+      data: rows
+    });
   });
 });
 
@@ -44,39 +38,36 @@ router.post("/", (req, res) => {
       data: { id: this.lastID, ...req.body },
     });
   });
+});
 
-  // Feature 3: DELETE /api/musicas/:id - Remover uma música
-  router.delete("/:id", (req, res) => {
-    const id = req.params.id;
+// Feature 3: DELETE /api/musicas/:id - Remover uma música
+router.delete("/:id", (req, res) => {
+  const id = req.params.id;
 
-    // 1. Verificar se a música existe
-    const checkSql = "SELECT id FROM musicas WHERE id = ?";
-    db.get(checkSql, [id], (err, row) => {
+  // 1. Verificar se a música existe
+  const checkSql = "SELECT id FROM musicas WHERE id = ?";
+  db.get(checkSql, [id], (err, row) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    // Caso a música não exista, retornar 404
+    if (!row) {
+      return res.status(404).json({ error: "Música não encontrada." });
+    }
+
+    // 2. Se existir, remover
+    const deleteSql = "DELETE FROM musicas WHERE id = ?";
+    db.run(deleteSql, [id], function (err) {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
 
-      // Caso o filme/música não exista, a API deverá retornar 404
-      if (!row) {
-        return res.status(404).json({ error: "Música não encontrada." });
+      if (this.changes > 0) {
+        res.status(204).send(); // Status 204 No Content para DELETE bem-sucedido
+      } else {
+        res.status(404).json({ error: "Música não encontrada." });
       }
-
-      // 2. Se existir, remover
-      const deleteSql = "DELETE FROM musicas WHERE id = ?";
-      db.run(deleteSql, [id], function (err) {
-        if (err) {
-          return res.status(500).json({ error: err.message });
-        }
-
-        // Se o filme/música existir, remover e retornar 204 (No Content)
-        // O `this.changes` indica o número de linhas modificadas
-        if (this.changes > 0) {
-          res.status(204).send(); // Status 204 No Content para DELETE bem-sucedido
-        } else {
-          // Redundância: Em teoria, a verificação `if (!row)` já pegaria isso.
-          res.status(404).json({ error: "Música não encontrada." });
-        }
-      });
     });
   });
 });

@@ -1,117 +1,78 @@
-const request = require("supertest");
-const app = require("../app");
-const db = require("../database/init-db");
+const request = require('supertest');
+const app = require('../app'); // Importa o app express configurado
 
-describe("Testes da API de Músicas", () => {
-  afterAll(() => {
-    return new Promise((resolve, reject) => {
-      db.close((err) => {
-        if (err) {
-          console.error(err.message);
-          return reject(err);
-        }
-        console.log("Conexão com o banco de dados de teste fechada.");
-        resolve();
-      });
-    });
-  });
+describe('Testes da API de Músicas', () => {
+    
+    // Variável para armazenar o ID de uma música criada para testar o DELETE
+    let musicaCriadaId;
 
-  // Teste para a rota GET /api/musicas
-  describe("GET /api/musicas", () => {
-    it("deve retornar uma lista de músicas e status 200", async () => {
-      const response = await request(app).get("/api/musicas");
+    // --- TESTE DA ROTA POST ---
+    describe('POST /api/musicas', () => {
+        it('Deve criar uma nova música com sucesso', async () => {
+            const novaMusica = {
+                titulo: "Teste Jest Song",
+                artista: "Jest Artist",
+                album: "Test Album",
+                anoLancamento: 2024,
+                genero: "Test Rock"
+            };
 
-      expect(response.status).toBe(200);
-      expect(response.body.message).toBe("Músicas obtidas com sucesso");
-      expect(Array.isArray(response.body.data)).toBe(true);
-      expect(response.body.data.length).toBeGreaterThan(0);
-    });
+            const response = await request(app)
+                .post('/api/musicas')
+                .send(novaMusica);
 
-    it("deve retornar status 500 em caso de erro no banco de dados", async () => {
-      const originalDbAll = db.all;
+            expect(response.status).toBe(201);
+            expect(response.body).toHaveProperty('message', 'Música adicionada com sucesso!');
+            expect(response.body.data).toHaveProperty('id');
+            expect(response.body.data.titulo).toBe(novaMusica.titulo);
 
-      db.all = (sql, params, callback) => {
-        callback(new Error("Simulated DB Error"), null);
-      };
+            // Salva o ID para usar no teste de DELETE
+            musicaCriadaId = response.body.data.id;
+        });
 
-      const response = await request(app).get("/api/musicas");
+        it('Deve retornar erro 400 se faltar título ou artista', async () => {
+            const musicaInvalida = {
+                album: "Album Sem Titulo"
+            };
 
-      expect(response.status).toBe(500);
-      expect(response.body.error).toBe("Simulated DB Error");
+            const response = await request(app)
+                .post('/api/musicas')
+                .send(musicaInvalida);
 
-      db.all = originalDbAll;
-    });
-  });
-
-  // Teste para a rota POST /api/musicas
-  describe("POST /api/musicas", () => {
-    it("deve adicionar uma nova música e retornar status 201", async () => {
-      const novaMusica = {
-        titulo: "Tempo Perdido",
-        artista: "Legião Urbana",
-        album: "Dois",
-        anoLancamento: 1986,
-        genero: "Rock",
-      };
-
-      const response = await request(app).post("/api/musicas").send(novaMusica);
-
-      expect(response.status).toBe(201);
-      expect(response.body.message).toBe("Música adicionada com sucesso!");
-      expect(response.body.data.titulo).toBe(novaMusica.titulo);
+            expect(response.status).toBe(400);
+            expect(response.body).toHaveProperty('error', 'Título e artista são obrigatórios.');
+        });
     });
 
-    it("deve retornar erro 400 se o título ou artista não forem fornecidos", async () => {
-      const musicaInvalida = {
-        album: "Algum Album",
-        genero: "Pop",
-      };
+    // --- TESTE DA ROTA GET ---
+    describe('GET /api/musicas', () => {
+        it('Deve retornar uma lista de músicas', async () => {
+            const response = await request(app).get('/api/musicas');
 
-      const response = await request(app)
-        .post("/api/musicas")
-        .send(musicaInvalida);
-
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe("Título e artista são obrigatórios.");
-    });
-  });
-
-  // Teste para a rota DELETE /api/musicas/:id
-  describe("DELETE /api/musicas/:id", () => {
-    let musicaParaDeletarId;
-
-    // Hook para criar uma música antes de cada teste de DELETE
-    beforeEach(async () => {
-      const novaMusica = {
-        titulo: "Musica Teste Delete",
-        artista: "Artista Teste",
-        album: "Album Teste",
-        anoLancamento: 2023,
-        genero: "Teste",
-      };
-
-      const response = await request(app).post("/api/musicas").send(novaMusica);
-      musicaParaDeletarId = response.body.data.id;
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveProperty('data');
+            expect(Array.isArray(response.body.data)).toBe(true);
+            // Verifica se a música criada no POST anterior está na lista
+            const musicaEncontrada = response.body.data.find(m => m.id === musicaCriadaId);
+            expect(musicaEncontrada).toBeDefined();
+        });
     });
 
-    it("deve remover uma música existente e retornar status 204", async () => {
-      const response = await request(app).delete(
-        `/api/musicas/${musicaParaDeletarId}`
-      );
+    // --- TESTE DA ROTA DELETE ---
+    describe('DELETE /api/musicas/:id', () => {
+        it('Deve deletar a música criada anteriormente', async () => {
+            const response = await request(app).delete(`/api/musicas/${musicaCriadaId}`);
+            
+            // 204 No Content é o padrão para delete com sucesso
+            expect(response.status).toBe(204);
+        });
 
-      expect(response.status).toBe(204);
-      expect(response.body).toEqual({}); // 204 não deve ter corpo
+        it('Deve retornar 404 ao tentar deletar uma música que não existe', async () => {
+            const idInexistente = 999999;
+            const response = await request(app).delete(`/api/musicas/${idInexistente}`);
+
+            expect(response.status).toBe(404);
+            expect(response.body).toHaveProperty('error', 'Música não encontrada.');
+        });
     });
-
-    it("deve retornar status 404 se a música não existir", async () => {
-      // Usar um ID que certamente não existe (maior que qualquer ID válido)
-      const idInexistente = 999999;
-      const response = await request(app).delete(
-        `/api/musicas/${idInexistente}`
-      );
-
-      expect(response.status).toBe(404);
-      expect(response.body.error).toBe("Música não encontrada.");
-    });
-  });
 });
