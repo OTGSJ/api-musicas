@@ -25,14 +25,17 @@ jobs:
 
   # JOB 2: Construção da Imagem (Requisito do Professor)
   build:
-    needs: test # Só roda se o job 'test' passar
+    needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     steps:
       - name: Checkout do código
         uses: actions/checkout@v4
       
       - name: Construir imagem Docker
-        # Substitua 'seu-usuario' pelo nome da secret ou hardcoded se preferir, mas secret é melhor
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/api-musicas:latest .
 
       - name: Salvar imagem como artefato
