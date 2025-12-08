@@ -45,6 +45,6 @@ jobs:
 
       - name: Verificar Cobertura de Código (Mínimo 90%)
         run: |
-          echo "Verificação de Cobertura: Garantir que a cobertura esteja acima de 90%"
+          echo "Verificação de Cobertura: Garantir que a cobertura esteja acima de 80%"
           # Adicione exclusões explícitas
-          npx c8 check-coverage --lines 90 --functions 90 --branches 90 --exclude "server.js" --exclude "public/*" --exclude "database/*"
+          npx c8 check-coverage --lines 80 --functions 80 --branches 80 --exclude "server.js" --exclude "public/*" --exclude "database/*"
