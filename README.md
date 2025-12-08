@@ -1,6 +1,6 @@
 # API de Músicas
 
-[![Docker Pulls](https://badgen.net/docker/pulls/otgj/api-musicas?icon=docker&label=pulls)](https://hub.docker.com/r/otgj/api-musicas)
+[![Docker Pulls](https://badgen.net/docker/pulls/OTGSJ/api-musicas?icon=docker&label=pulls)](https://hub.docker.com/r/OTGSJ/api-musicas)
 
 Uma API REST simples para gerenciar uma playlist de músicas, foi utilizado Node.js, Express e SQLite.
 
