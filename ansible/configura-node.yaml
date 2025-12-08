@@ -1,0 +1,42 @@
+---
+- name: Configurar Node para a API de Músicas
+  hosts: web_servers
+  become: yes # Permite usar 'sudo' para instalação (necessário para Docker)
+
+  tasks:
+    - name: 1. Instalar Python PIP (necessário para o módulo Docker do Ansible)
+      ansible.builtin.apt:
+        name: python3-pip
+        state: present
+        update_cache: yes
+      when: ansible_os_family == 'Debian' # Executa em sistemas Debian/Ubuntu
+
+    - name: 2. Instalar Docker Engine
+      ansible.builtin.apt:
+        name: docker.io
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: 3. Instalar dependência Python 'docker' (para Ansible gerenciar containers)
+      ansible.builtin.pip:
+        name: docker
+        state: present
+
+    - name: 4. Puxar imagem da API de Músicas do Docker Hub
+      community.docker.docker_image:
+        name: "SEU_USUARIO_DOCKER/api-musicas"
+        tag: latest
+        source: pull
+        state: present
+      # Nota: Se o seu Docker Hub usar um repositório privado, 
+      # você precisará de uma task de login antes desta.
+
+    - name: 5. Iniciar container da API
+      community.docker.docker_container:
+        name: musica-api
+        image: "SEU_USUARIO_DOCKER/api-musicas:latest"
+        state: started
+        # Mapeia a porta 8080 do servidor gerenciado para a porta 8080 do container
+        ports:
+          - "8080:8080" 
+        restart_policy: always
