@@ -24,7 +24,7 @@
 
     - name: 4. Puxar imagem da API de Músicas do Docker Hub
       community.docker.docker_image:
-        name: "SEU_USUARIO_DOCKER/api-musicas"
+        name: "otgj/api-musicas"
         tag: latest
         source: pull
         state: present
@@ -34,7 +34,7 @@
     - name: 5. Iniciar container da API
       community.docker.docker_container:
         name: musica-api
-        image: "SEU_USUARIO_DOCKER/api-musicas:latest"
+        image: "otgj/api-musicas:latest"
         state: started
         # Mapeia a porta 8080 do servidor gerenciado para a porta 8080 do container
         ports:
